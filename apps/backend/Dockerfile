@@ -34,8 +34,6 @@
 # CMD ["node", "dist/main.js"]
 
 
-
-
 # Base image for the build stage
 FROM node:18-alpine AS base
 
@@ -54,30 +52,26 @@ COPY . .
 # Build the NestJS application
 RUN npx nx run backend:build
 
-# Production image
+# Production image with NGINX
 FROM nginx:alpine AS production
 
-# Set working directory for app
+# Set working directory for the production stage
 WORKDIR /app
 
-
-# Copy package.json and install only production dependencies
-COPY package*.json ./
-RUN npm install --only=production
+# Copy only the production dependencies from the base stage
+COPY --from=base /app/node_modules /app/node_modules
 
 # Copy built application from the base stage
-COPY --from=base /app/dist/apps/backend ./dist
+COPY --from=base /app/dist/apps/backend /app/dist
 
+# Copy the custom NGINX configuration file (you can customize this based on your needs)
+COPY nginx.conf /etc/nginx/nginx.conf
 
+# Expose port 80 for NGINX to serve
+EXPOSE 80
 
-
-# Copy Nginx configuration
-COPY apps/backend/nginx.conf /etc/nginx/nginx.conf
-
-
-
-# Start Nginx to reverse proxy requests to the backend
-CMD ["sh", "-c", "nginx && node dist/main.js"]
+# Start NGINX in the foreground and Node.js backend
+CMD ["sh", "-c", "nginx -g 'daemon off;' && node dist/main.js"]
 
 
 

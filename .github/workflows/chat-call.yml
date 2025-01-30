@@ -99,27 +99,27 @@ jobs:
           registry: '${{ env.REGION }}-docker.pkg.dev'
 
         # WEB
-      # - name: 'Build and Push web Image to Artifact Registry'
-      #   run: |-
-      #     DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.WEB_IMAGE }}:${{ github.sha }}"
-      #     docker build -f apps/web/Dockerfile -t "${DOCKER_TAG}" .
-      #     gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
-      #     docker push "${DOCKER_TAG}"
+      - name: 'Build and Push web Image to Artifact Registry'
+        run: |-
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.WEB_IMAGE }}:${{ github.sha }}"
+          docker build -f apps/web/Dockerfile -t "${DOCKER_TAG}" .
+          gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
+          docker push "${DOCKER_TAG}"
 
-      # - name: 'Deploy web Image to Cloud Run'
-      #   run: |-
-      #     gcloud run deploy "${{ env.WEB_SERVICE }}" \
-      #     --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.WEB_IMAGE }}:${{ github.sha }}" \
-      #     --update-labels managed-by=github-actions,commit-sha="${{ github.sha }}" \
-      #     --region "${{ env.REGION }}" \
-      #     --service-account "${{ env.SERVICE_EMAIL }}" \
-      #     --allow-unauthenticated \
-      #     --set-env-vars VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}",VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}",VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}",VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}",VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}",VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}",VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}"
+      - name: 'Deploy web Image to Cloud Run'
+        run: |-
+          gcloud run deploy "${{ env.WEB_SERVICE }}" \
+          --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.WEB_IMAGE }}:${{ github.sha }}" \
+          --update-labels managed-by=github-actions,commit-sha="${{ github.sha }}" \
+          --region "${{ env.REGION }}" \
+          --service-account "${{ env.SERVICE_EMAIL }}" \
+          --allow-unauthenticated \
+          --set-env-vars VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}",VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}",VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}",VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}",VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}",VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}",VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}"
 
-      # - name: 'Show output'
-      #   run: |
-      #     echo "Cloud Run service deployed to:"
-      #     echo "${{ steps.deploy.outputs.url }}"
+      - name: 'Show output'
+        run: |
+          echo "Cloud Run service deployed to:"
+          echo "${{ steps.deploy.outputs.url }}"
 
       # BACKEND
       - name: 'Build and Push backend Image to Artifact Registry'

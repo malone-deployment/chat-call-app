@@ -23,9 +23,9 @@ export function GroupChat() {
   }, []);
   const getList = async (): Promise<void> => {
     const BaseUrl =
-      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app/';
+      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app';
     // const response = await fetch(`${BaseUrl}chat`);
-    const response = await fetch(`${BaseUrl}chat`, {
+    const response = await fetch(`${BaseUrl}/chat`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`, // Include the token

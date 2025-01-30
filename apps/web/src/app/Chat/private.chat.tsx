@@ -30,9 +30,9 @@ export function PrivateChat() {
     const senderfromhome = privatesender;
     const recipientfromhome = privaterecipient;
     const BaseUrl =
-      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app/';
+      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app';
     const response = await fetch(
-      `${BaseUrl}privatechat?sender=${senderfromhome}&recipient=${recipientfromhome}`,
+      `${BaseUrl}/privatechat?sender=${senderfromhome}&recipient=${recipientfromhome}`,
       {
         method: 'GET',
         headers: {

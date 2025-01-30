@@ -19,7 +19,7 @@ export default function SignUp() {
   const onSubmit: SubmitHandler<SignUpInput> = async (data) => {
     const BaseUrl =
       'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app';
-    const response = await fetch(`${BaseUrl}/api/signup`, {
+    const response = await fetch(`${BaseUrl}/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

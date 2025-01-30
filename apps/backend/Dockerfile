@@ -65,7 +65,7 @@ COPY --from=base /app/node_modules /app/node_modules
 COPY --from=base /app/dist/apps/backend /app/dist
 
 # Copy the custom NGINX configuration file (you can customize this based on your needs)
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY apps/web/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80 for NGINX to serve
 EXPOSE 80

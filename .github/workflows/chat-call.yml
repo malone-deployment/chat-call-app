@@ -102,7 +102,15 @@ jobs:
       - name: 'Build and Push web Image to Artifact Registry'
         run: |-
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.WEB_IMAGE }}:${{ github.sha }}"
-          docker build -f apps/web/Dockerfile -t "${DOCKER_TAG}" .
+          docker build -f apps/web/Dockerfile \
+          --build-arg VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}" \
+          --build-arg VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" \
+          --build-arg VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}" \
+          --build-arg VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" \
+          --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" \
+          --build-arg VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}" \
+          --build-arg VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" \
+          -t "${DOCKER_TAG}" .
           gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
           docker push "${DOCKER_TAG}"
 
@@ -113,8 +121,7 @@ jobs:
           --update-labels managed-by=github-actions,commit-sha="${{ github.sha }}" \
           --region "${{ env.REGION }}" \
           --service-account "${{ env.SERVICE_EMAIL }}" \
-          --allow-unauthenticated \
-          --set-env-vars VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}",VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}",VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}",VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}",VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}",VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}",VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}"
+          --allow-unauthenticated
 
       - name: 'Show output'
         run: |

@@ -90,7 +90,7 @@ RUN npm install --only=production
 COPY --from=base /app/dist/apps/backend ./dist
 
 # Copy Nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY apps/backend/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 8080 for Cloud Run
 EXPOSE 8080

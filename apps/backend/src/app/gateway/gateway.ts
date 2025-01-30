@@ -16,7 +16,7 @@ import {
 import { Inject, Logger } from '@nestjs/common';
 import { ChatService } from '../chat.service';
 
-@WebSocketGateway({ cors: { origin: '*' } }) // Remove port 3002
+@WebSocketGateway(3002, { cors: { origin: '*' } })
 export class MyGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {

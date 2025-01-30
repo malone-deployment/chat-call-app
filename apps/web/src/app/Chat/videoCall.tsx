@@ -29,13 +29,6 @@ export function VideoCall() {
   const [currentText, setText] = useState('Start your Webcam');
 
   const app = initializeApp(firebaseConfig);
-  console.log('Firebase Config:', firebaseConfig);
-  fetch(
-    'https://firestore.googleapis.com/v1/projects/todo-list-9981c/databases/(default)/documents'
-  )
-    .then((response) => response.json())
-    .then((data) => console.log('Firestore API Response:', data))
-    .catch((error) => console.error('Firestore API Error:', error));
 
   const firestore = getFirestore(app);
   const servers = {

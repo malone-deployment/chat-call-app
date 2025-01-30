@@ -96,4 +96,4 @@ COPY apps/backend/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8080
 
 # Start Nginx to reverse proxy requests to the backend
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "nginx && node dist/main.js"]

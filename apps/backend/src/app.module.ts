@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ChatModule } from './app/chatmodule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from './app/tools/user.entity';
+import { UserEntity1 } from './app/tools/user.entity';
 import { ChatEntity } from './app/tools/chat.entity';
 import { PrivateEntity } from './app/tools/private.entity';
 
@@ -14,7 +14,7 @@ import { PrivateEntity } from './app/tools/private.entity';
       username: process.env.POSTGRES_DB_USER,
       password: process.env.POSTGRES_DB_PASS,
       database: process.env.POSTGRES_DB_NAME,
-      entities: [UserEntity, ChatEntity, PrivateEntity],
+      entities: [UserEntity1, ChatEntity, PrivateEntity],
       synchronize: true,
     }),
 

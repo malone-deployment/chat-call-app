@@ -105,6 +105,11 @@ export function GroupChat() {
       </div>
       <div>
         <input
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onSubmit();
+            }
+          }}
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}

@@ -129,24 +129,24 @@ jobs:
           echo "${{ steps.deploy.outputs.url }}"
 
       # BACKEND
-      - name: 'Build and Push backend Image to Artifact Registry'
-        run: |
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}"
-          docker build -f apps/backend/Dockerfile -t "${DOCKER_TAG}" .
-          gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
-          docker push "${DOCKER_TAG}"
+      # - name: 'Build and Push backend Image to Artifact Registry'
+      #   run: |
+      #     DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}"
+      #     docker build -f apps/backend/Dockerfile -t "${DOCKER_TAG}" .
+      #     gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
+      #     docker push "${DOCKER_TAG}"
 
-      - name: 'Deploy backend Image to Cloud Run and connect to Cloud SQL'
-        run: |
-          gcloud run deploy "${{ env.BACKEND_SERVICE }}" \
-          --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}" \
-          --region "${{ env.REGION }}" \
-          --service-account "${{ env.SERVICE_EMAIL }}" \
-          --allow-unauthenticated \
-          --add-cloudsql-instances "${{ env.POSTGRES_CLOUDSQL_INSTANCE }}" \
-          --set-env-vars POSTGRES_INSTANCE_UNIX_SOCKET="${{ env.POSTGRES_INSTANCE_UNIX_SOCKET }}" \
-          --set-env-vars POSTGRES_INSTANCE_CONNECTION_NAME="${{ env.POSTGRES_INSTANCE_CONNECTION_NAME }}" \
-          --set-env-vars POSTGRES_DB_PORT="${{ env.POSTGRES_DB_PORT }}" \
-          --set-env-vars POSTGRES_DB_NAME="${{ env.POSTGRES_DB_NAME }}" \
-          --set-env-vars POSTGRES_DB_USER="${{ env.POSTGRES_DB_USER }}" \
-          --set-env-vars POSTGRES_DB_PASS="${{ env.POSTGRES_DB_PASS }}"
+      # - name: 'Deploy backend Image to Cloud Run and connect to Cloud SQL'
+      #   run: |
+      #     gcloud run deploy "${{ env.BACKEND_SERVICE }}" \
+      #     --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}" \
+      #     --region "${{ env.REGION }}" \
+      #     --service-account "${{ env.SERVICE_EMAIL }}" \
+      #     --allow-unauthenticated \
+      #     --add-cloudsql-instances "${{ env.POSTGRES_CLOUDSQL_INSTANCE }}" \
+      #     --set-env-vars POSTGRES_INSTANCE_UNIX_SOCKET="${{ env.POSTGRES_INSTANCE_UNIX_SOCKET }}" \
+      #     --set-env-vars POSTGRES_INSTANCE_CONNECTION_NAME="${{ env.POSTGRES_INSTANCE_CONNECTION_NAME }}" \
+      #     --set-env-vars POSTGRES_DB_PORT="${{ env.POSTGRES_DB_PORT }}" \
+      #     --set-env-vars POSTGRES_DB_NAME="${{ env.POSTGRES_DB_NAME }}" \
+      #     --set-env-vars POSTGRES_DB_USER="${{ env.POSTGRES_DB_USER }}" \
+      #     --set-env-vars POSTGRES_DB_PASS="${{ env.POSTGRES_DB_PASS }}"

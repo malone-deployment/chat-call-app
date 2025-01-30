@@ -33,7 +33,6 @@ COPY --from=base /app/dist/apps/backend ./dist
 # Start the application
 CMD ["node", "dist/main.js"]
 
-EXPOSE 8080
 
 
 

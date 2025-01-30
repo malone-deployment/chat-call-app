@@ -1,0 +1,126 @@
+# This workflow build and push a Docker container to Google Artifact Registry
+# and deploy it on Cloud Run when a commit is pushed to the "main"
+# branch.
+#
+# To configure this workflow:
+#
+# 1. Enable the following Google Cloud APIs:
+#
+#    - Artifact Registry (artifactregistry.googleapis.com)
+#    - Cloud Run (run.googleapis.com)
+#    - IAM Credentials API (iamcredentials.googleapis.com)
+#
+#    You can learn more about enabling APIs at
+#    https://support.google.com/googleapi/answer/6158841.
+#
+# 2. Create and configure a Workload Identity Provider for GitHub:
+#    https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation.
+
+# 2.5 Add another config
+#      gcloud iam service-accounts add-iam-policy-binding ${SERVICE EMAIL}
+#      --member="principalSet://iam.googleapis.com/${WORK IDENTITY PROVIDER}/attribute.repository/${ORG_NAME/REPO_NAME}"
+#      --role="roles/iam.workloadIdentityUser"
+
+#
+#
+#
+#    Depending on how you authenticate, you will need to grant an IAM principal
+#    permissions on Google Cloud:
+#
+#    - Artifact Registry Administrator (roles/artifactregistry.admin)
+#    - Cloud Run Developer (roles/run.developer)
+#
+#    You can learn more about setting IAM permissions at
+#    https://cloud.google.com/iam/docs/manage-access-other-resources
+#
+# 3. Change the values in the "env" block to match your values.
+
+name: 'Build and Deploy Postgres to Cloud Run and connect to Cloud SQL'
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.PROJECT_ID }} # Google Cloud project ID
+  REGION: ${{ secrets.REGION }} # Google Cloud region
+  SERVICE_EMAIL: ${{ secrets.SERVICE_EMAIL }} # Service account email
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }} # Workload Identity Provider
+  GAR_REPOSITORY_NAME: ${{ secrets.GAR_REPOSITORY_NAME }} # Artifact Registry repository name: sample: second-repository
+
+  BACKEND_IMAGE: 'chat-call-app-backend-image' # backend image name
+  WEB_IMAGE: 'chat-call-app-web-image' # web image name
+
+  BACKEND_SERVICE: 'chat-call-app-backend-service' # Cloud Run service name
+  WEB_SERVICE: 'chat-call-app-web-service' # Cloud Run service name
+
+  POSTGRES_CLOUDSQL_INSTANCE: ${{ secrets.POSTGRES_CLOUDSQL_INSTANCE }}
+  POSTGRES_INSTANCE_UNIX_SOCKET: ${{ secrets.POSTGRES_INSTANCE_UNIX_SOCKET }}
+  POSTGRES_INSTANCE_CONNECTION_NAME: ${{ secrets.POSTGRES_INSTANCE_CONNECTION_NAME }}
+  POSTGRES_DB_PORT: ${{ secrets.POSTGRES_DB_PORT }}
+  POSTGRES_DB_NAME: ${{ secrets.POSTGRES_DB_NAME }}
+  POSTGRES_DB_USER: ${{ secrets.POSTGRES_DB_USER }}
+  POSTGRES_DB_PASS: ${{ secrets.POSTGRES_DB_PASS }}
+
+  VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+  VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+  VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+  VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+  VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+  VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+  VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          project_id: '${{ env.PROJECT_ID }}'
+          service_account: '${{ env.SERVICE_EMAIL }}'
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
+
+      - name: 'Docker Auth'
+        uses: 'docker/login-action@v3'
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.auth_token }}'
+          registry: '${{ env.REGION }}-docker.pkg.dev'
+
+        run: |
+          echo "Cloud Run service deployed to:"
+          echo "${{ steps.deploy.outputs.url }}"
+
+      # BACKEND
+      - name: 'Build and Push backend Image to Artifact Registry'
+        run: |
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}"
+          docker build -f apps/backend/Dockerfile -t "${DOCKER_TAG}" .
+          gcloud auth configure-docker '${{ env.REGION }}-docker.pkg.dev'
+          docker push "${DOCKER_TAG}"
+
+      - name: 'Deploy backend Image to Cloud Run and connect to Cloud SQL'
+        run: |
+          gcloud run deploy "${{ env.BACKEND_SERVICE }}" \
+          --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_REPOSITORY_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}" \
+          --region "${{ env.REGION }}" \
+          --service-account "${{ env.SERVICE_EMAIL }}" \
+          --allow-unauthenticated \
+          --add-cloudsql-instances "${{ env.POSTGRES_CLOUDSQL_INSTANCE }}" \
+          --set-env-vars POSTGRES_INSTANCE_UNIX_SOCKET="${{ env.POSTGRES_INSTANCE_UNIX_SOCKET }}" \
+          --set-env-vars POSTGRES_INSTANCE_CONNECTION_NAME="${{ env.POSTGRES_INSTANCE_CONNECTION_NAME }}" \
+          --set-env-vars POSTGRES_DB_PORT="${{ env.POSTGRES_DB_PORT }}" \
+          --set-env-vars POSTGRES_DB_NAME="${{ env.POSTGRES_DB_NAME }}" \
+          --set-env-vars POSTGRES_DB_USER="${{ env.POSTGRES_DB_USER }}" \
+          --set-env-vars POSTGRES_DB_PASS="${{ env.POSTGRES_DB_PASS }}"

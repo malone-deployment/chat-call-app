@@ -13,11 +13,13 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    
+
     formState: { errors },
   } = useForm<SignUpInput>();
   const onSubmit: SubmitHandler<SignUpInput> = async (data) => {
-    const BaseUrl = 'http://localhost:3000';
+    const BaseUrl =
+      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app';
+
     const response = await fetch(`${BaseUrl}/api/login`, {
       method: 'POST',
       headers: {

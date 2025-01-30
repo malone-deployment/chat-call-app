@@ -29,7 +29,8 @@ export function PrivateChat() {
   const getList = async (): Promise<void> => {
     const senderfromhome = privatesender;
     const recipientfromhome = privaterecipient;
-    const BaseUrl = 'http://localhost:3000/api/';
+    const BaseUrl =
+      'https://chat-call-app-backend-service-422041495987.asia-southeast1.run.app/';
     const response = await fetch(
       `${BaseUrl}privatechat?sender=${senderfromhome}&recipient=${recipientfromhome}`,
       {

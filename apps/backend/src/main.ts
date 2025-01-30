@@ -7,17 +7,15 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MainModule } from './app.module';
 
+const HOST = '0.0.0.0';
+const PORT = Number(process.env.PORT) || 8080;
 async function bootstrap() {
   const app = await NestFactory.create(MainModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
   app.enableCors();
-
-  const port = process.env.PORT || 8080;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
-  );
+  await app.listen(PORT, HOST).then(() => {
+    Logger.log(
+      `** Nest Live Development Server is listening on ${HOST}:${PORT}, open your browser on http://localhost:${PORT}/ **`
+    );
+  });
 }
-
 bootstrap();
